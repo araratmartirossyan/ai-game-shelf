@@ -43,6 +43,7 @@ export default defineNuxtConfig({
       link: [
         { rel: "icon", type: "image/png", href: "/icon-192x192.png" },
         { rel: "apple-touch-icon", href: "/icon-192x192.png" },
+        { rel: "manifest", href: "/manifest.webmanifest" },
       ],
     },
   },
@@ -55,6 +56,9 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: "autoUpdate",
+    strategies: "injectManifest",
+    srcDir: "public",
+    filename: "sw.js",
     manifest: {
       name: "GameShelf - Your Game Catalog",
       short_name: "GameShelf",
@@ -71,31 +75,37 @@ export default defineNuxtConfig({
           src: "/icon-48x48.png",
           sizes: "48x48",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-72x72.png",
           sizes: "72x72",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-96x96.png",
           sizes: "96x96",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-128x128.png",
           sizes: "128x128",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-144x144.png",
           sizes: "144x144",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-152x152.png",
           sizes: "152x152",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-192x192.png",
@@ -107,11 +117,13 @@ export default defineNuxtConfig({
           src: "/icon-256x256.png",
           sizes: "256x256",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-384x384.png",
           sizes: "384x384",
           type: "image/png",
+          purpose: "any",
         },
         {
           src: "/icon-512x512.png",
@@ -164,7 +176,7 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: true,
+      enabled: process.env.NODE_ENV === "development",
       suppressWarnings: true,
       navigateFallback: "/",
       type: "module",
