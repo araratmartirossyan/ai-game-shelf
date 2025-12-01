@@ -19,12 +19,27 @@
           @file-removed="handleFileRemoved"
         />
 
-        <RecognitionControls
-          v-if="selectedFile"
-          :recognizing="recognizing"
-          :recognition-error="recognitionError"
-          @recognize="recognizeGame"
-        />
+        <!-- Recognition Status -->
+        <div v-if="recognizing" class="text-center py-8">
+          <div
+            class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"
+          ></div>
+          <p class="text-muted-foreground">Analyzing game image...</p>
+        </div>
+
+        <!-- Recognition Error -->
+        <div
+          v-if="recognitionError && !recognizing"
+          class="bg-destructive/10 border border-destructive/20 rounded-lg p-4"
+        >
+          <p class="text-destructive text-sm">{{ recognitionError }}</p>
+          <button
+            @click="recognizeGame"
+            class="mt-2 text-sm text-primary hover:underline"
+          >
+            Try again
+          </button>
+        </div>
 
         <GameForm
           v-if="recognitionResult"
@@ -59,10 +74,13 @@ const formData = ref({
 const gamesStore = useGamesStore();
 const { recognizeGame: recognizeGameAI } = useGameRecognition();
 
-const handleFileSelected = (file: File) => {
+const handleFileSelected = async (file: File) => {
   selectedFile.value = file;
   recognitionError.value = null;
   recognitionResult.value = null;
+
+  // Auto-start recognition when file is selected
+  await recognizeGame();
 };
 
 const handleFileRemoved = () => {

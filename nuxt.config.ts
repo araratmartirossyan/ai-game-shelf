@@ -56,7 +56,6 @@ export default defineNuxtConfig({
 
   pwa: {
     registerType: "autoUpdate",
-    strategies: "generateSW",
     manifest: {
       name: "GameShelf - Your Game Catalog",
       short_name: "GameShelf",

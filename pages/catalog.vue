@@ -18,6 +18,13 @@
             </h1>
           </div>
           <div class="flex items-center gap-2">
+            <NuxtLink
+              to="/scan"
+              class="p-2 hover:bg-accent rounded-lg transition-colors"
+              title="Scan New Game"
+            >
+              <Camera class="w-6 h-6" />
+            </NuxtLink>
             <button
               @click="showSearch = !showSearch"
               class="p-2 hover:bg-accent rounded-lg transition-colors"
@@ -167,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { BookOpen, Menu, Search, Filter } from "lucide-vue-next";
+import { BookOpen, Menu, Search, Filter, Camera } from "lucide-vue-next";
 
 const gamesStore = useGamesStore();
 const searchQuery = ref("");
