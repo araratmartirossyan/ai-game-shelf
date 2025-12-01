@@ -51,6 +51,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       openaiApiKey: process.env.OPENAI_API_KEY,
+      rawgApiKey: process.env.RAWG_API_KEY,
     },
   },
 

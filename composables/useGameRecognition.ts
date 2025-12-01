@@ -1,5 +1,12 @@
+import { RawgService } from "~/services/rawgService";
+
 export const useGameRecognition = () => {
   const config = useRuntimeConfig();
+
+  // Initialize RAWG service with API key
+  if (config.public.rawgApiKey) {
+    RawgService.setApiKey(config.public.rawgApiKey);
+  }
 
   const recognizeGameWithOpenAI = async (imageBase64: string): Promise<any> => {
     const apiKey = config.public.openaiApiKey;
@@ -133,7 +140,39 @@ export const useGameRecognition = () => {
     }
 
     try {
-      return await recognizeGameWithOpenAI(base64);
+      const result = await recognizeGameWithOpenAI(base64);
+
+      // Try to fetch image from RAWG API if we have a title
+      if (result.title && config.public.rawgApiKey) {
+        try {
+          const rawgResults = await RawgService.searchGames(result.title);
+          const bestMatch = RawgService.findBestMatch(
+            result.title,
+            rawgResults
+          );
+
+          if (bestMatch && bestMatch.background_image) {
+            result.image_url = bestMatch.background_image;
+            // Also update other fields if they're missing
+            if (!result.platform && bestMatch.platforms?.length > 0) {
+              result.platform = bestMatch.platforms[0].platform.name;
+            }
+            if (!result.genre && bestMatch.genres?.length > 0) {
+              result.genre = bestMatch.genres.map((g) => g.name).join(", ");
+            }
+            if (!result.year && bestMatch.released) {
+              result.year = new Date(bestMatch.released)
+                .getFullYear()
+                .toString();
+            }
+          }
+        } catch (rawgError) {
+          console.warn("Failed to fetch image from RAWG:", rawgError);
+          // Continue with OpenAI result even if RAWG fails
+        }
+      }
+
+      return result;
     } catch (error: any) {
       console.error("OpenAI recognition failed:", error);
       throw new Error(
@@ -143,7 +182,34 @@ export const useGameRecognition = () => {
     }
   };
 
+  const searchGame = async (query: string): Promise<any> => {
+    if (!config.public.rawgApiKey) {
+      throw new Error("RAWG API key not configured");
+    }
+
+    try {
+      const results = await RawgService.searchGames(query);
+      if (results.length === 0) {
+        throw new Error("No games found");
+      }
+
+      // Return all results for selection, or best match if single result
+      if (results.length === 1) {
+        return RawgService.mapRawgToGameRecognition(results[0]);
+      }
+
+      // Return results array for user selection
+      return results;
+    } catch (error: any) {
+      console.error("RAWG search failed:", error);
+      throw new Error(
+        error.message || "Failed to search game. Please try again."
+      );
+    }
+  };
+
   return {
     recognizeGame,
+    searchGame,
   };
 };
